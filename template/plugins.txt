@@ -1,0 +1,74 @@
+##
+## ElasticSearch plugins to install, one per line.
+## Edit this file, commit and push. All plugins will be
+## installed inside all gears.
+##
+## To use a specific URL to download plugin code from, use:
+##   [PLUGIN_NAME]=[URL]
+## Ex:
+##   myplugin=https://mysite.com/elasticsearch/my-awesome-plugin.zip
+##
+## To install a plugin from a zip file, simply place the file inside dir
+## plugins/ and git add+commit it. No need to do place configs here.
+##
+## Configuration is build on-the-fly with initial contents from file
+## config/elasticsearch.yml.erb, concatenated if any other file found in that
+## same dir (except for logging.yml and elasticsearch.in.sh). Files ending with
+## .erb will be pre-processed using ruby's erb command.
+##
+################################################################################
+
+## Description:
+##   The elasticsearch-jetty plugin brings full power of Jetty and adds
+##   several new features to elasticsearch. With this plugin elasticsearch can now
+##   handle SSL connections, support basic authentication, and log all or some
+##   incoming requests in plain text or json formats.
+##
+## URL:
+##   http://www.emergi.net/elasticsearch/plugins.html
+
+## Uncomment line below to install this plugin
+## You also need to edit file config/jetty.yml
+#jetty=https://s3.amazonaws.com/www.emergi.net/elasticsearch/plugins/elasticsearch-jetty-1.0.0.zip
+
+## Description:
+##   ElasticSearch-head is a web front end for browsing and
+##   interacting with an Elastic Search cluster.
+##
+## URL:
+##   http://mobz.github.io/elasticsearch-head
+
+## Uncomment line below to install this plugin
+#mobz/elasticsearch-head
+
+## Description:
+##   Paramedic is a simple yet sexy tool to monitor and inspect
+##   ElasticSearch clusters. It displays real-time statistics and
+##   information about your nodes and indices, as well as shard
+##   allocation within the cluster.
+##
+## URL:
+##   https://github.com/karmi/elasticsearch-paramedic
+
+## Uncomment line below to install this plugin
+#karmi/elasticsearch-paramedic
+
+## Description:
+##   Site plugin for Elasticsearch to help understand and debug queries.
+##
+## URL:
+##   https://github.com/polyfractal/elasticsearch-inquisitor
+
+## Uncomment line below to install this plugin
+#polyfractal/elasticsearch-inquisitor
+
+## Description:
+##   SegmentSpy is a tool to watch the segments in your indices.
+##   Segment graphs update in real-time, allowing you to watch as
+##   ElasticSearch (Lucene) merges your segments
+##
+## URL:
+##   https://github.com/polyfractal/elasticsearch-segmentspy
+
+## Uncomment line below to install this plugin
+#polyfractal/elasticsearch-segmentspy

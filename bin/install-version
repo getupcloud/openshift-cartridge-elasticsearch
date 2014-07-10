@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $0 <ELASTICSEARCH-VERSION>"
+	echo "Example: $0 1.2.1"
+	exit 1
+fi
+
+source $OPENSHIFT_ELASTICSEARCH_DIR/lib/util
+_install_version $1

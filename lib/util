@@ -1,0 +1,115 @@
+#!/bin/bash
+
+export ES_CONFIG_DIR="$OPENSHIFT_REPO_DIR/config/"
+export ES_CONFIG_FILE="$ES_CONFIG_DIR/elasticsearch.yml"
+export ES_CONFIG_LOG_FILE="$ES_CONFIG_DIR/logging.yml"
+export ES_PID_FILE="$OPENSHIFT_ELASTICSEARCH_DIR/run/elasticsearch.pid"
+export ES_PLUGIN_CMD="$OPENSHIFT_ELASTICSEARCH_DIR/usr/bin/plugin -Des.path.plugins=$OPENSHIFT_DATA_DIR/elasticsearch-plugins"
+
+function _install_version()
+{
+	local VERSION=$1
+
+	if [ -d $OPENSHIFT_ELASTICSEARCH_DIR/usr ]; then
+		echo Removing old version $(<$OPENSHIFT_ELASTICSEARCH_DIR/usr/.version)
+		rm -rf $OPENSHIFT_ELASTICSEARCH_DIR/usr
+	fi
+
+	echo Downloading version $VERSION
+	mkdir $OPENSHIFT_ELASTICSEARCH_DIR/usr
+	curl https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-$VERSION.tar.gz | tar xzf - --strip-components=1 -C $OPENSHIFT_ELASTICSEARCH_DIR/usr
+}
+
+function _is_scalable()
+{
+  if [ "${OPENSHIFT_APP_DNS}" != "${OPENSHIFT_GEAR_DNS}" ]; then
+    return 0
+  elif [ -n "${OPENSHIFT_HAPROXY_DIR}" ]; then
+    return 0
+  fi
+  return 1
+}
+
+function _install_plugins()
+{
+  local old_plugins=$($ES_PLUGIN_CMD --list | awk '/-/{print $2}' | xargs)
+  if [ -n "$old_plugins"  -a "$old_plugins" != "No" ]; then #ARGH!
+    echo "Removing old ElasticSearch plugins..."
+    for plugin in $old_plugins; do
+      $ES_PLUGIN_CMD --remove $plugin
+    done
+  fi
+
+  if [ -e "$OPENSHIFT_REPO_DIR/plugins.txt" ]; then
+    echo "Installing ElasticSearch plugins from plugins.txt..."
+
+    local plugins="$(grep -v '^#' $OPENSHIFT_REPO_DIR/plugins.txt 2>/dev/null | xargs)"
+    if [ "${plugins}" ]; then
+      for plugin in ${plugins}; do
+        local name=$(echo $plugin | cut -f 1 -d =)
+        local url=$(echo $plugin | cut -f 2 -d =)
+        if [ "$name" == "$url" ]; then
+          $ES_PLUGIN_CMD --install $name
+        else
+          eval $ES_PLUGIN_CMD --url $url --install $name
+        fi
+      done
+    fi
+  fi
+
+  if [ -d "$OPENSHIFT_REPO_DIR/plugins" ]; then
+    echo "Installing ElasticSearch plugins from plugins/..."
+
+    plugins=`find $OPENSHIFT_REPO_DIR/plugins/ -type f -name '*.zip'`
+    if [ "${plugins}" ]; then
+      for plugin in ${plugins}; do
+        $ES_PLUGIN_CMD --url file://$plugin --install `basename ${plugin%.*}`
+      done
+    fi
+  fi
+}
+
+function _build_config()
+{
+  _is_scalable && local S=1 || local S=0
+
+  # Process all ERB templates first
+  for FILE in $ES_CONFIG_DIR/*.erb; do
+    [ -f "$FILE" ] || continue
+    SCALABLE=$S oo-erb "$FILE" >> "${FILE%.erb}"
+  done
+
+  # Append all config files to main config
+  for FILE in $ES_CONFIG_DIR/*; do
+    [ -f "$FILE" ] || continue
+    [ "${FILE/*.erb/}" ] || continue
+    [ "${FILE/*.sh/}"  ] || continue
+    [ "${FILE##*/}" == "${ES_CONFIG_FILE##*/}" ] && continue
+    [ "${FILE##*/}" == "${ES_CONFIG_LOG_FILE##*/}" ] && continue
+    echo
+    echo "#### Include from $FILE"
+    echo
+    SCALABLE=$S oo-erb "$FILE"
+  done >> "${ES_CONFIG_FILE}"
+}
+
+function _es_heap_size()
+{
+  # Load how much percent of the gear memory should be assigned to ES
+  # Value is read from marker file es_heap_size_percent
+  local DEFAULT_PERCENT=90
+
+  if [ -r "$OPENSHIFT_REPO_DIR/.openshift/markers/es_heap_size_percent" ]; then
+    local PERCENT=$(<$OPENSHIFT_REPO_DIR/.openshift/markers/es_heap_size_percent)
+    [[ "$PERCENT" -eq "$PERCENT" ]] 2>/dev/null || PERCENT=$DEFAULT_PERCENT
+  else
+    local PERCENT=$DEFAULT_PERCENT
+  fi
+
+  # Ensure sane limits
+  [ "$PERCENT" -gt 100 ] && PERCENT=100
+  [ "$PERCENT" -lt 50  ] && PERCENT=50
+
+  echo -n $(($OPENSHIFT_GEAR_MEMORY_MB/100*$DEFAULT_PERCENT))m
+}
+

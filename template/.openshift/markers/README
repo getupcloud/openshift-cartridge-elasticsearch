@@ -1,0 +1,8 @@
+Markers
+===========
+
+Adding marker files to this directory will have the following effects:
+
+es_heap_size_percent - Sets how much percent of the gear memory should be assigned to ElasticSearch.
+    This number is used to calculate how much memory will be exposed to ES via env var ES_HEAP_SIZE.
+    Default value is 90.

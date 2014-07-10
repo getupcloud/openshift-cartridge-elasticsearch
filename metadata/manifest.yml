@@ -1,0 +1,50 @@
+Name: elasticsearch
+Cartridge-Short-Name: ELASTICSEARCH
+Display-Name: Elasticsearch 1.2
+Description: "Elasticsearch is a flexible and powerful open source, distributed, real-time search and analytics engine. Architected from the ground up for use in distributed environments where reliability and scalability are must haves, Elasticsearch gives you the ability to move easily beyond simple full-text search."
+Version: 1.2
+License: Apache
+Vendor: elasticsearch.org
+Cartridge-Version: 0.0.2
+Cartridge-Vendor: getup
+
+Categories:
+  - web_framework
+  - service
+
+Provides:
+  - elasticsearch
+  - elasticsearch-1
+  - elasticsearch-1.2
+
+Publishes:
+  publish-unicast-host:
+    Type: NET_TCP:elasticsearch-cluster-info
+  publish-http-url:
+    Type: NET_TCP:httpd-proxy-info
+  publish-gear-endpoint:
+    Type: NET_TCP:gear-endpoint-info
+
+Subscribes:
+  set-unicast-hosts:
+    Type: NET_TCP:elasticsearch-cluster-info
+
+Scaling:
+  Min: 1
+  Max: -1
+
+Endpoints:
+  - Private-IP-Name:   IP
+    Private-Port-Name: PORT
+    Private-Port:      9200
+    Public-Port-Name:  PROXY_PORT
+    Protocols:
+    - http
+    Mappings:
+    - Frontend: ''
+      Backend: ''
+
+  - Private-IP-Name:   IP
+    Private-Port-Name: TRANSPORT_PORT
+    Private-Port:      9300
+    Public-Port-Name:  TRANSPORT_PROXY_PORT

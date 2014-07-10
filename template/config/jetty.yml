@@ -1,0 +1,6 @@
+# Replace default netty http transport with jetty http transport (jetty plugin)
+
+# Uncoment below to activate Jetty
+#http.type: com.sonian.elasticsearch.http.jetty.JettyHttpServerTransportModule
+#sonian.elasticsearch.http.jetty:
+#    bind_host: ${OPENSHIFT_ELASTICSEARCH_IP}
