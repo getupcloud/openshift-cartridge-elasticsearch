@@ -2,7 +2,7 @@
 
 Summary:       Provides Elasticsearch support
 Name:          openshift-cartridge-elasticsearch
-Version:       1.0.0
+Version:       1.0.1
 Release:       1%{?dist}
 Group:         Network/Daemons
 License:       ASL 2.0
