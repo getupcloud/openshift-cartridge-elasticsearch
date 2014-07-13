@@ -22,7 +22,6 @@ Provides Elasticsearch cartridge support to OpenShift. (Cartridge Format V2)
 
 %build
 %__rm %{name}.spec
-%__rm -rf rel-eng
 
 %install
 %__mkdir -p %{buildroot}%{cartridgedir}
@@ -37,6 +36,7 @@ Provides Elasticsearch cartridge support to OpenShift. (Cartridge Format V2)
 %{cartridgedir}/logs
 %{cartridgedir}/metadata
 %{cartridgedir}/template
+%exclude %{cartridgedir}/rel-eng
 %doc %{cartridgedir}/README.md
 %doc %{cartridgedir}/README_pt.md
 %doc %{cartridgedir}/LICENSE.txt
