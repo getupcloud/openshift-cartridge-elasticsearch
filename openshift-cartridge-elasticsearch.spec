@@ -42,6 +42,10 @@ Provides Elasticsearch cartridge support to OpenShift. (Cartridge Format V2)
 %doc %{cartridgedir}/LICENSE.txt
 
 %changelog
+* Mon Jul 14 2014 Builder <getup@getupcloud.com> 1.0.3-1
+- bump version (getup@getupcloud.com)
+- Update manifest.yml (mateus@caruccio.com)
+
 * Sun Jul 13 2014 Builder <getup@getupcloud.com> 1.0.2-1
 - fix spec (getup@getupcloud.com)
 
