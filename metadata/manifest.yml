@@ -6,7 +6,7 @@ Version: 1.2
 License: Apache
 Vendor: elasticsearch.org
 Cartridge-Version: 0.0.2
-Cartridge-Vendor: getup
+Cartridge-Vendor: redhat
 
 Categories:
   - web_framework
