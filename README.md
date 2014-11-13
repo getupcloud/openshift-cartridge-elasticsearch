@@ -2,19 +2,15 @@
 
 OpenShift Elasticsearch Cartridge
 =================================
-This cartridge provides an Elasticsearch cluster as a standalone application.
-
-In order to create your application, first you need to register at Getup Cloud.
-Go to http://getupcloud.com/#/sign-up and signup for free.
-You receive a free 750h trial to test our services.
+This cartridge provides an Elasticsearch cluster as a standalone application with a kibana dashboard served on the `/kibana` route.
 
 To create your Elasticsearch app, run:
 
-    rhc app-create <app> http://reflector-getupcloud.getup.io/github/getupcloud/openshift-cartridge-elasticsearch
+    rhc app-create <app> http://cartreflect-claytondev.rhcloud.com/reflect?github=swcc/openshift-cartridge-elasticsearch
 
 If you want to create a Elasticsearch cluster, append the flag `--scaling`:
 
-    rhc app-create <app> http://reflector-getupcloud.getup.io/github/getupcloud/openshift-cartridge-elasticsearch --scaling
+    rhc app-create <app> http://cartreflect-claytondev.rhcloud.com/reflect?github=swcc/openshift-cartridge-elasticsearch --scaling
 
 Adding additional cluster nodes
 ===============================
