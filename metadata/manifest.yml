@@ -43,6 +43,16 @@ Endpoints:
     Mappings:
     - Frontend: ''
       Backend: ''
+      
+  - Private-IP-Name:   KIBANA_IP
+    Private-Port-Name: KIBANA_PORT
+    Private-Port:      9201
+    Public-Port-Name:  KIBANA_PROXY_PORT
+    Protocols:
+    - http
+    Mappings:
+    - Frontend: '/kibana'
+      Backend: ''
 
   - Private-IP-Name:   IP
     Private-Port-Name: TRANSPORT_PORT
