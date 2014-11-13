@@ -15,6 +15,18 @@ function _is_running() {
   return 1
 }
 
+function _is_kibana_running() {
+  if [ -f $KIBANA_PID_FILE ]; then
+    local zpid=$(cat $KIBANA_PID_FILE 2> /dev/null)
+    local myid=$(id -u)
+    if `ps -opid,args --pid $zpid 2>&1 &> /dev/null`; then
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 function start() {
   if _is_running; then
     echo "ElasticSearch is already running" 1>&2
@@ -22,6 +34,11 @@ function start() {
   fi
 
   _build_config
+
+  echo "Starting Kibana"
+  pushd $OPENSHIFT_ELASTICSEARCH_DIR
+  rackup -D -P $KIBANA_PID_FILE -p $OPENSHIFT_ELASTICSEARCH_KIBANA_PORT -o $OPENSHIFT_ELASTICSEARCH_KIBANA_IP
+  popd
 
   echo "Starting ElasticSearch"
   export PUBLISH_HOST=$(python -c "import socket; print socket.gethostbyname('`hostname`')")
@@ -35,6 +52,24 @@ function stop() {
   if ! _is_running; then
     echo "ElasticSearch is already stopped" 1>&2
     return 0
+  fi
+
+  echo "Stopping Kibana"
+  if [ -f $KIBANA_PID_FILE ]; then
+    local kpid=$(cat $KIBANA_PID_FILE 2> /dev/null)
+  fi
+
+  if [ -n $kpid ]; then
+    /bin/kill $kpid
+    local ret=$?
+    if [ $ret -eq 0 ]; then
+      local TIMEOUT=10
+      while [ $TIMEOUT -gt 0 ] &&  _is_kibana_running ; do
+        /bin/kill -0 "$kpid" > /dev/null 2>&1  ||  break
+        sleep 1
+        let TIMEOUT=${TIMEOUT}-1
+      done
+    fi
   fi
 
   echo "Stopping ElasticSearch"
