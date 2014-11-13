@@ -15,9 +15,9 @@ function _is_running() {
   return 1
 }
 
-function _is_kibana_running() {
-  if [ -f $KIBANA_PID_FILE ]; then
-    local zpid=$(cat $KIBANA_PID_FILE 2> /dev/null)
+function _is_nginx_running() {
+  if [ -f $NGINX_PID_FILE ]; then
+    local zpid=$(cat $NGINX_PID_FILE 2> /dev/null)
     local myid=$(id -u)
     if `ps -opid,args --pid $zpid 2>&1 &> /dev/null`; then
       return 0
@@ -35,10 +35,17 @@ function start() {
 
   _build_config
 
-  echo "Starting Kibana"
-  pushd $OPENSHIFT_ELASTICSEARCH_DIR
-  rackup -D -P $KIBANA_PID_FILE -p $OPENSHIFT_ELASTICSEARCH_KIBANA_PORT -o $OPENSHIFT_ELASTICSEARCH_KIBANA_IP
-  popd
+  echo "Starting Nginx"
+  if [ -f "$NGINX_EXEC" ]; then
+      if [ -f "$OPENSHIFT_REPO_DIR/nginx.conf.erb" ]; then
+          oo-erb $OPENSHIFT_REPO_DIR/nginx.conf.erb > $OPENSHIFT_REPO_DIR/nginx.conf
+      fi
+      # nginx will always use the prefix defined at compile time unless an absolute path to the conf file is given
+      nohup "$NGINX_EXEC" -c "$NGINX_CONFIG_FILE" 2>&1
+      [ "$?" == "0" ] && wait_for_pid_file $NGINX_PID_FILE
+  else
+      echo "WARN: Could not find the compiled application versions/$NGINX_VERSION/bin/nginx, will not start"
+  fi
 
   echo "Starting ElasticSearch"
   export PUBLISH_HOST=$(python -c "import socket; print socket.gethostbyname('`hostname`')")
@@ -54,22 +61,11 @@ function stop() {
     return 0
   fi
 
-  echo "Stopping Kibana"
-  if [ -f $KIBANA_PID_FILE ]; then
-    local kpid=$(cat $KIBANA_PID_FILE 2> /dev/null)
-  fi
-
-  if [ -n $kpid ]; then
-    /bin/kill $kpid
-    local ret=$?
-    if [ $ret -eq 0 ]; then
-      local TIMEOUT=10
-      while [ $TIMEOUT -gt 0 ] &&  _is_kibana_running ; do
-        /bin/kill -0 "$kpid" > /dev/null 2>&1  ||  break
-        sleep 1
-        let TIMEOUT=${TIMEOUT}-1
-      done
-    fi
+  echo "Stopping Nginx"
+  if [ -f "$NGINX_PID_FILE" ]; then
+      pid=`cat "$NGINX_PID_FILE" 2> /dev/null`
+      eval "'$NGINX_EXEC' -c '$NGINX_CONFIG_FILE' -s stop"
+      wait_for_stop $pid
   fi
 
   echo "Stopping ElasticSearch"
@@ -107,6 +103,23 @@ function status() {
 
 function deploy() {
    _install_plugins
+}
+
+function tidy() {
+    client_message "Emptying log dir: $OPENSHIFT_ELASTICSEARCH_DIR/logs"
+    shopt -s dotglob
+    rm -rf logs/*
+}
+function update() {
+    version=${NGINX_VERSION:-1.4.4}
+    echo "Rebuilding Nginx v$version"
+    stop
+    mkdir -p tmp/build
+    bin/compile tmp/build
+    bin_dir="nginx/versions/$version/bin"
+    mkdir -p $bin_dir
+    cp -f tmp/build/out/nginx $bin_dir
+    rm -rf tmp/build
 }
 
 case "$1" in

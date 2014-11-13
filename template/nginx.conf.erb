@@ -1,0 +1,9 @@
+server {
+    listen  <%= ENV['OPENSHIFT_ELASTICSEARCH_IP'] %>:<%= ENV['OPENSHIFT_ELASTICSEARCH_PORT'] %>;
+    root    <%= ENV['OPENSHIFT_REPO_DIR'] %>public;
+
+    location / {
+        try_files index.html <%= ENV['OPENSHIFT_ELASTICSEARCH_IP'] %>:9200;
+        index  index.html index.htm;
+    }
+}

@@ -34,25 +34,17 @@ Scaling:
   Max: -1
 
 Endpoints:
-  - Private-IP-Name:   IP
+  - Private-IP-Name: IP
     Private-Port-Name: PORT
-    Private-Port:      9200
-    Public-Port-Name:  PROXY_PORT
-    Protocols:
-    - http
+    Private-Port: 8080
+    Public-Port-Name: PROXY_PORT
     Mappings:
-    - Frontend: ''
-      Backend: ''
-      
-  - Private-IP-Name:   KIBANA_IP
-    Private-Port-Name: KIBANA_PORT
-    Private-Port:      9201
-    Public-Port-Name:  KIBANA_PROXY_PORT
-    Protocols:
-    - http
-    Mappings:
-    - Frontend: '/kibana'
-      Backend: ''
+    - Frontend: ""
+      Backend: ""
+      Options: { websocket: true }
+    - Frontend: "/health"
+      Backend: ""
+      Options: { health: true }
 
   - Private-IP-Name:   IP
     Private-Port-Name: TRANSPORT_PORT
