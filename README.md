@@ -2,7 +2,7 @@
 
 OpenShift Elasticsearch Cartridge
 =================================
-This cartridge provides an Elasticsearch cluster as a standalone application with a kibana dashboard served on the `/kibana` route.
+This cartridge provides an Elasticsearch cluster as a standalone application with a kibana dashboard served and accessible by targetting the index page `/index.html`.
 
 To create your Elasticsearch app, run:
 
