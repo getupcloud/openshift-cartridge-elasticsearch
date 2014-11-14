@@ -2,7 +2,7 @@
 
 OpenShift Elasticsearch Cartridge
 =================================
-This cartridge provides an Elasticsearch cluster as a standalone application.
+This cartridge provides an Elasticsearch cluster as a standalone application with a kibana dashboard served and accessible by targetting the index page `/index.html`.
 
 In order to create your application, first you need to register at Getup Cloud.
 Go to http://getupcloud.com/#/sign-up and signup for free.
