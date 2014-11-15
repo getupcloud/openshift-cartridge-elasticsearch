@@ -33,9 +33,11 @@ Você ainda pode instalar plugins a partir de arquivos zip. Basta colocá-los no
 
 Configuração
 ============
-As configurações são construidas durante o deploy, iniciando com o conteúdo do arquivo `config/elasticsearch.yml.erb`, concatenado
-com os arquivos encontrados em `config` (com exceção de logging.yml e elasticsearch.in.sh). Arquivos com extensão .erb serão
-pre-processados usango o comando ruby erb.
+As configurações são construidas durante o deploy, iniciando com o conteúdo do arquivo `config/elasticsearch.yml.erb`, concatenado com os arquivos encontrados em `/config` (com exceção de `logging.yml` e `elasticsearch.in.sh`). Arquivos com extensão `.erb` serão pre-processados usango o comando `ruby erb`.
+
+Kibana & Nginx
+==============
+Graças ao [@popox](https://github.com/popox) agora temos suporte ao Kibana! Basta apontar seu navegador para `/kibana` e _voilà_! Tanto o ES quanto o Kibana são servidos a partir do nginx. Você pode configurar o nginx editando o arquivo `nginx.conf.erb` na raiz do repositório git.
 
 Créditos
 ========
