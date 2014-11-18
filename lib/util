@@ -95,7 +95,7 @@ function _build_config()
   # Process all ERB templates first
   for FILE in $ES_CONFIG_DIR/*.erb; do
     [ -f "$FILE" ] || continue
-    SCALABLE=$S oo-erb "$FILE" >> "${FILE%.erb}"
+    SCALABLE=$S oo-erb "$FILE" > "${FILE%.erb}"
   done
 
   # Append all config files to main config
