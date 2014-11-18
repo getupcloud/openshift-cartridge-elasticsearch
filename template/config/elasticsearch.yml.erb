@@ -208,6 +208,9 @@ network.bind_host: ${OPENSHIFT_ELASTICSEARCH_IP}
 <% if ENV['SCALABLE'] == "1" %>
 network.publish_host: ${PUBLISH_HOST}
 transport.publish_port: ${OPENSHIFT_ELASTICSEARCH_TRANSPORT_PROXY_PORT}
+<% else %>
+network.publish_host: ${OPENSHIFT_ELASTICSEARCH_IP}
+transport.publish_port: 9300
 <% end %>
 
 # Set both 'bind_host' and 'publish_host':
