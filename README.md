@@ -1,4 +1,4 @@
-[Versão Português](https://github.com/getupcloud/openshift-elasticsearch-cartridge/blob/master/README_pt.md)
+[Versão Português](README_pt.md)
 
 OpenShift Elasticsearch Cartridge
 =================================
