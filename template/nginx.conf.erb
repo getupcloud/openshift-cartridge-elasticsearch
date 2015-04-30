@@ -2,17 +2,14 @@ server {
     listen  <%= ENV['OPENSHIFT_ELASTICSEARCH_IP'] %>:<%= ENV['OPENSHIFT_ELASTICSEARCH_PORT'] %>;
     root    <%= ENV['OPENSHIFT_ELASTICSEARCH_DIR'] %>/kibana;
 
-    location @es {
-        proxy_pass       http://<%= ENV['OPENSHIFT_ELASTICSEARCH_IP'] %>:9200;
+    location @kibana {
+        rewrite ^/kibana/?(.*) /$1 break;
+        proxy_pass       http://<%= ENV['OPENSHIFT_ELASTICSEARCH_IP'] %>:5601;
         proxy_set_header Host      $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
-    # Kibana URI is /kibana
-    location ~ ^/kibana/?$ {
-        try_files /index.html =404;
-    }
     location / {
         index  index.html index.htm;
-        try_files $uri @es;
+        try_files $uri @kibana;
     }
 }

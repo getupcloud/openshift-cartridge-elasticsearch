@@ -47,6 +47,20 @@ function start() {
       echo "WARN: Could not find the compiled application versions/$NGINX_VERSION/bin/nginx, will not start"
   fi
 
+  echo "Starting Kibana"
+  if [ -f "$KIBANA_EXEC" ]; then
+      # Config for kibana
+      if [ -f "$OPENSHIFT_REPO_DIR/config/kibana.yml.erb" ]; then
+          oo-erb $OPENSHIFT_REPO_DIR/config/kibana.yml.erb > $OPENSHIFT_REPO_DIR/config/kibana.yml
+          cp $OPENSHIFT_REPO_DIR/config/kibana.yml $KIBANA_CONFIG_FILE
+      fi
+
+      nohup "$KIBANA_EXEC" -c "$KIBANA_CONFIG_FILE" 2>&1 >> $OPENSHIFT_ELASTICSEARCH_DIR/logs/kibana.log &
+      disown %1
+  else
+      echo "WARN: Could not find the compiled application kibana/bin/kibana, will not start"
+  fi
+
   echo "Starting ElasticSearch"
   export PUBLISH_HOST=$(python -c "import socket; print socket.gethostbyname('`hostname`')")
   export ES_HEAP_SIZE="`_es_heap_size`"
@@ -68,9 +82,12 @@ function stop() {
       wait_for_stop $pid
   fi
 
-  echo "Stopping ElasticSearch"
+  echo "Stopping ElasticSearch & Kibana"
   if [ -f $ES_PID_FILE ]; then
     local zpid=$(cat $ES_PID_FILE 2> /dev/null)
+  fi
+  if [ -f $KIBANA_PID_FILE ]; then
+    local kpid=$(cat $KIBANA_PID_FILE 2> /dev/null)
   fi
 
   if [ -n $zpid ]; then
@@ -80,6 +97,18 @@ function stop() {
       local TIMEOUT=10
       while [ $TIMEOUT -gt 0 ] &&  _is_running ; do
         /bin/kill -0 "$zpid" > /dev/null 2>&1  ||  break
+        sleep 1
+        let TIMEOUT=${TIMEOUT}-1
+      done
+    fi
+  fi
+  if [ -n $kpid ]; then
+    /bin/kill $kpid
+    local ret=$?
+    if [ $ret -eq 0 ]; then
+      local TIMEOUT=10
+      while [ $TIMEOUT -gt 0 ] &&  _is_running ; do
+        /bin/kill -0 "$kpid" > /dev/null 2>&1  ||  break
         sleep 1
         let TIMEOUT=${TIMEOUT}-1
       done

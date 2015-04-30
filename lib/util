@@ -4,6 +4,9 @@ export ES_CONFIG_DIR="$OPENSHIFT_REPO_DIR/config/"
 export ES_CONFIG_FILE="$ES_CONFIG_DIR/elasticsearch.yml"
 export ES_CONFIG_LOG_FILE="$ES_CONFIG_DIR/logging.yml"
 export ES_PID_FILE="$OPENSHIFT_ELASTICSEARCH_DIR/run/elasticsearch.pid"
+export KIBANA_EXEC="$OPENSHIFT_ELASTICSEARCH_DIR/kibana/bin/kibana"
+export KIBANA_CONFIG_FILE="$OPENSHIFT_ELASTICSEARCH_DIR/kibana/config/kibana.yml"
+export KIBANA_PID_FILE="$OPENSHIFT_ELASTICSEARCH_DIR/run/kibana.pid"
 export NGINX_PID_FILE="$OPENSHIFT_ELASTICSEARCH_DIR/run/nginx.pid"
 export NGINX_VERSION=${NGINX_VERSION:-1.4.4}
 export NGINX_EXEC="$OPENSHIFT_ELASTICSEARCH_DIR/nginx/versions/$NGINX_VERSION/bin/nginx"
@@ -35,7 +38,7 @@ function _install_kibana_version()
 
 	echo Downloading version $VERSION
 	mkdir $OPENSHIFT_ELASTICSEARCH_DIR/kibana
-	curl https://download.elasticsearch.org/kibana/kibana/kibana-$VERSION.tar.gz | tar xzf - --strip-components=1 -C $OPENSHIFT_ELASTICSEARCH_DIR/kibana
+	curl https://download.elasticsearch.org/kibana/kibana/kibana-$VERSION-linux-x64.tar.gz | tar xzf - --strip-components=1 -C $OPENSHIFT_ELASTICSEARCH_DIR/kibana
 }
 
 
@@ -110,9 +113,6 @@ function _build_config()
     echo
     SCALABLE=$S oo-erb "$FILE"
   done >> "${ES_CONFIG_FILE}"
-
-  # Config for kibana
-  cp conf/config.js $OPENSHIFT_ELASTICSEARCH_DIR/kibana/config.js
 }
 
 function _es_heap_size()
