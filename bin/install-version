@@ -2,7 +2,7 @@
 
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <ELASTICSEARCH-VERSION>"
-	echo "Example: $0 1.2.1"
+	echo "Example: $0 1.4.4"
 	exit 1
 fi
 
